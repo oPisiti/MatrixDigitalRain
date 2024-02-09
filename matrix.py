@@ -3,12 +3,13 @@
 import os
 from random import randrange, choice
 import string
+import sys
 from time import sleep
 
 
 class Globals:
-    LENGTH_MIN = 3
-    LENGTH_MAX = 5
+    LENGTH_MIN = 7
+    LENGTH_MAX = 12
     
     TEXT_COLOR = "92"
     HEAD_COLOR = "39"
@@ -47,64 +48,78 @@ def matrix():
 
     strips = [Strip(c) for c in [i for i in range(0, size.columns, 2)]]
 
-    os.system("clear")
+    # Creating space
+    print("\n" * (row - 1), end="")
+    print("\033[%d;%dH" % (0, 0), end="")
+
     print(f"\033[{Globals.TEXT_COLOR}m", end="")
     
     # Main loop
     add_list, remove_list = [], []
     old_add_list = []
-    while(True):
-        pass
-        # Updating the add and remove lists 
-        for i in range(len(strips)): strips[i].update(add_list, remove_list)
+    try:
+        while(True):
+            pass
+            # Updating the add and remove lists 
+            for i in range(len(strips)): strips[i].update(add_list, remove_list)
 
-        # ---- Printing ----
-        # Adding new chars to head
-        print(f"\033[{Globals.HEAD_COLOR}m", end="")
-        for (r, c, char) in add_list:
-            # if r > row or r < 0: continue
+            # ---- Printing ----
+            # Adding new chars to head
+            print(f"\033[{Globals.HEAD_COLOR}m", end="")
+            for (r, c, char) in add_list:
+                # if r > row or r < 0: continue
 
-            print("\033[%d;%dH" % (r, c), end=char)
-        
-        print(f"\033[{Globals.TEXT_COLOR}m", end="")
+                print("\033[%d;%dH" % (r, c), end=char)
+            
+            print(f"\033[{Globals.TEXT_COLOR}m", end="")
 
-        # Removing from tail
-        for (r, c) in remove_list:
-            print("\033[%d;%dH" % (r, c), end=" ")
-        
-        # Setting the head char to being normal color
-        for (r, c, char) in old_add_list:
-            print("\033[%d;%dH" % (r, c), end=char)
+            # Removing from tail
+            for (r, c) in remove_list:
+                print("\033[%d;%dH" % (r, c), end=" ")
+            
+            # Setting the head char to being normal color
+            for (r, c, char) in old_add_list:
+                print("\033[%d;%dH" % (r, c), end=char)
 
-        # ---- Deletion ----
-        # Marking strips for deletion and spawning
-        spawn_strip_columns = []
-        delete_strips_indexes = []
-        for i, strip in enumerate(strips):
-            strip_tail_pos = strip.head_pos - strip.max_length
+            # ---- Deleting and spawning----
+            # Marking strips for deletion and spawning
+            spawn_strip_columns = []
+            delete_strips_indexes = []
+            for i, strip in enumerate(strips):
+                strip_tail_pos = strip.head_pos - strip.max_length
 
-            if not strip.spawned_new:
-                # Marking for spawn
-                if strip_tail_pos > 0:
-                    spawn_strip_columns.append(strip.column)
-                    strip.spawned_new = True
+                if not strip.spawned_new:
+                    # Marking for spawn
+                    if strip_tail_pos > 0:
+                        spawn_strip_columns.append(strip.column)
+                        strip.spawned_new = True
 
-            if strip_tail_pos > (row + 1):
-                # Marking for deletion
-                delete_strips_indexes.append(i)   
+                if strip_tail_pos >= (row + 1):
+                    # Marking for deletion
+                    delete_strips_indexes.append(i)   
 
-        # Spawning new strips
-        for c in spawn_strip_columns:
-            strips.append(Strip(c))
+            # Spawning new strips
+            for c in spawn_strip_columns:
+                strips.append(Strip(c))
 
-        # Deleting strips
-        for i in range(len(delete_strips_indexes) - 1, -1, -1):
-            strips.pop(delete_strips_indexes[i])
+            # Deleting strips
+            for i in range(len(delete_strips_indexes) - 1, -1, -1):
+                strips.pop(delete_strips_indexes[i])
 
-        sleep(1)
+            sleep(0.075)
 
-        old_add_list = add_list.copy()
-        add_list, remove_list = [], []
+            old_add_list = add_list.copy()
+            add_list, remove_list = [], []
+
+    except KeyboardInterrupt:
+        # Cleaning up
+        print("\033[%d;%dH" % (0, 0), end="")
+
+        for r in range(row):
+            print(" " * columns * 2)
+
+        print("\033[%d;%dH" % (0, 0), end="")
+        sys.exit(130)
 
 
 if __name__ == '__main__':
