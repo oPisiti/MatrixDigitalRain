@@ -14,8 +14,8 @@ class Globals:
     TEXT_COLOR = "92"
     HEAD_COLOR = "39"
     
-    MIN_DISTANCE_BETWEEN_STRIPS = 3
-    MAX_DISTANCE_BETWEEN_STRIPS = 7
+    MIN_DISTANCE_BETWEEN_STRIPS = 5
+    MAX_DISTANCE_BETWEEN_STRIPS = 9
 
 
 class Strip():
@@ -67,7 +67,7 @@ def matrix():
             # Adding new chars to head
             print(f"\033[{Globals.HEAD_COLOR}m", end="")
             for (r, c, char) in add_list:
-                # if r > row or r < 0: continue
+                if r > row or r < 0: continue
 
                 print("\033[%d;%dH" % (r, c), end=char)
             
@@ -75,10 +75,14 @@ def matrix():
 
             # Removing from tail
             for (r, c) in remove_list:
+                if r > row or r < 0: continue
+
                 print("\033[%d;%dH" % (r, c), end=" ")
             
             # Setting the head char to being normal color
             for (r, c, char) in old_add_list:
+                if r > row or r < 0: continue
+
                 print("\033[%d;%dH" % (r, c), end=char)
 
             # ---- Deleting and spawning----
@@ -106,7 +110,8 @@ def matrix():
             for i in range(len(delete_strips_indexes) - 1, -1, -1):
                 strips.pop(delete_strips_indexes[i])
 
-            sleep(0.075)
+            # sleep(0.035)
+            sleep(0.2)
 
             old_add_list = add_list.copy()
             add_list, remove_list = [], []
