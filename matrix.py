@@ -8,26 +8,30 @@ from time import sleep
 
 
 class Globals:
-    LENGTH_MIN = 7
-    LENGTH_MAX = 12
+    LENGTH_MIN = 20
+    LENGTH_MAX = 30
     
     TEXT_COLOR = "92"
     HEAD_COLOR = "39"
     
-    MIN_DISTANCE_BETWEEN_STRIPS = 5
-    MAX_DISTANCE_BETWEEN_STRIPS = 9
+    MIN_DISTANCE_BETWEEN_STRIPS = 20
+    MAX_DISTANCE_BETWEEN_STRIPS = 45
+
+    MIN_INITIAL_POS = -70
 
 
 class Strip():
     char_pool = string.ascii_letters
 
-    def __init__(self, column: int) -> None:
+    def __init__(self, column: int, pos: int = None) -> None:
         self.column = column
         self.max_length = randrange(Globals.LENGTH_MIN, Globals.LENGTH_MAX)
-        self.head_pos = randrange(0, -10, -1)
+        
+        if pos is None: self.head_pos = randrange(0, -10, -1)
+        else:           self.head_pos = pos
         
         self.spawned_new = False
-        self.spawn_new_distance = choice([i for i in range(Globals.MIN_DISTANCE_BETWEEN_STRIPS, Globals.MAX_DISTANCE_BETWEEN_STRIPS)])
+        self.spawned_new_distance = randrange(Globals.MIN_DISTANCE_BETWEEN_STRIPS, Globals.MAX_DISTANCE_BETWEEN_STRIPS)
 
     def update(self, add_list: list, remove_list: list) -> None:
         self.head_pos += 1
@@ -46,7 +50,7 @@ def matrix():
     row     =  size.lines
     columns = (size.columns + 1) // 2
 
-    strips = [Strip(c) for c in [i for i in range(0, size.columns, 2)]]
+    strips = [Strip(c, randrange(Globals.MIN_INITIAL_POS, 0)) for c in [i for i in range(0, size.columns, 2)]]
 
     # Creating space
     print("\n" * (row - 1), end="")
@@ -95,7 +99,7 @@ def matrix():
                 if not strip.spawned_new:
                     # Marking for spawn
                     if strip_tail_pos > 0:
-                        spawn_strip_columns.append(strip.column)
+                        spawn_strip_columns.append((strip.column, strip.spawned_new_distance))
                         strip.spawned_new = True
 
                 if strip_tail_pos >= (row + 1):
@@ -103,15 +107,16 @@ def matrix():
                     delete_strips_indexes.append(i)   
 
             # Spawning new strips
-            for c in spawn_strip_columns:
-                strips.append(Strip(c))
+            for (c, d) in spawn_strip_columns:
+                strips.append(Strip(c, -d))
 
             # Deleting strips
             for i in range(len(delete_strips_indexes) - 1, -1, -1):
                 strips.pop(delete_strips_indexes[i])
 
-            # sleep(0.035)
-            sleep(0.2)
+            # Avoids staggers. https://stackoverflow.com/questions/24344992/python-3-4-time-sleep-hangs-unexpectely-when-preceeded-by-a-print-call 
+            sys.stdout.flush()
+            sleep(0.035)
 
             old_add_list = add_list.copy()
             add_list, remove_list = [], []
@@ -121,7 +126,7 @@ def matrix():
         print("\033[%d;%dH" % (0, 0), end="")
 
         for r in range(row):
-            print(" " * columns * 2)
+            print(" " * (columns * 2 - 1))
 
         print("\033[%d;%dH" % (0, 0), end="")
         sys.exit(130)
