@@ -48,16 +48,8 @@ class Strip():
             remove_list.append((self.head_pos - self.max_length, self.column))
 
 
-def matrix():
-    # Parsing command-line arguments
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-s", help="Sets the speed to slow", action="store_true")
-    parser.add_argument("-f", help="Sets the speed to fast", action="store_true")
-    args = parser.parse_args()
-
-    # Dealing with arguments
-    if args.s:   Globals.DELTA_T = 0.065
-    elif args.f: Globals.DELTA_T = 0.025
+def matrix() -> None:
+    parse_arguments()
 
     # Defining the valid row and column sizes
     size = os.get_terminal_size()
@@ -144,6 +136,21 @@ def matrix():
 
         print("\033[%d;%dH" % (0, 0), end="")
         sys.exit(130)
+
+
+def parse_arguments() -> None:
+    # Parsing command-line arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-s", help="Sets the speed to slow", action="store_true")
+    parser.add_argument("-f", help="Sets the speed to fast", action="store_true")
+    parser.add_argument("-e", help="Uses the extended set of chars. Includes things like '#$%&\()' and also numbers", action="store_true")
+    args = parser.parse_args()
+
+    # Dealing with arguments
+    if args.s:   Globals.DELTA_T = 0.065
+    elif args.f: Globals.DELTA_T = 0.025
+
+    if args.e:   Globals.CHAR_POOL = string.printable[:-6]
 
 
 if __name__ == '__main__':
