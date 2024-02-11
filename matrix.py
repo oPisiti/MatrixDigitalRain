@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import argparse
 import os
 from random import randrange, choice
 import string
@@ -8,6 +9,10 @@ from time import sleep
 
 
 class Globals:
+    CHAR_POOL = string.ascii_letters
+
+    DELTA_T = 0.035
+
     LENGTH_MIN = 20
     LENGTH_MAX = 30
     
@@ -21,7 +26,6 @@ class Globals:
 
 
 class Strip():
-    char_pool = string.ascii_letters
 
     def __init__(self, column: int, pos: int = None) -> None:
         self.column = column
@@ -37,7 +41,7 @@ class Strip():
         self.head_pos += 1
 
         if self.head_pos >= 0:
-            new_char = choice(Strip.char_pool)
+            new_char = choice(Globals.CHAR_POOL)
             add_list.append((self.head_pos, self.column, new_char))
 
         if self.head_pos > self.max_length:
@@ -45,6 +49,16 @@ class Strip():
 
 
 def matrix():
+    # Parsing command-line arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-s", help="Sets the speed to slow", action="store_true")
+    parser.add_argument("-f", help="Sets the speed to fast", action="store_true")
+    args = parser.parse_args()
+
+    # Dealing with arguments
+    if args.s:   Globals.DELTA_T = 0.065
+    elif args.f: Globals.DELTA_T = 0.025
+
     # Defining the valid row and column sizes
     size = os.get_terminal_size()
     row     =  size.lines
@@ -116,7 +130,7 @@ def matrix():
 
             # Avoids staggers. https://stackoverflow.com/questions/24344992/python-3-4-time-sleep-hangs-unexpectely-when-preceeded-by-a-print-call 
             sys.stdout.flush()
-            sleep(0.035)
+            sleep(Globals.DELTA_T)
 
             old_add_list = add_list.copy()
             add_list, remove_list = [], []
