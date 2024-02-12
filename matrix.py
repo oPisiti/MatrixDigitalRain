@@ -26,6 +26,26 @@ class Globals:
 
 
 class Strip():
+    """
+    A strip is a vertical line of characters that moves along the screen.
+
+    Attributes:
+        column (int): The index of the column in which the strip resides.
+        head_pos (int): The vertical position of the head of the strip.
+        max_length (int): The maximum length of the strip.
+        spawned_new (bool): Whether the current strip has already spawned a new one on its column.
+        spawned_new_distance (int): The distance between the current strip and the newly spawned strip.
+
+    Methods:        
+        update(add_list, remove_list)
+            Updates the strip's position and adds/removes characters from the screen as needed.
+
+            Parameters:
+                add_list (list): A list of tuples representing new characters to be added to the screen.
+                    Each tuple contains three elements: the row index, the column index, and a character.
+                remove_list (list): A list of tuples representing characters to be removed from the screen.
+                    Each tuple contains two elements: the row index and the column index.
+    """
 
     def __init__(self, column: int, pos: int = None) -> None:
         self.column = column
@@ -49,6 +69,18 @@ class Strip():
 
 
 def matrix() -> None:
+    """
+    This function is responsible for creating and updating the matrix animation on the screen. 
+    Each iteration representing one frame of the animation. 
+
+    Args: None
+
+    Returns: None
+
+    Raises: KeyboardInterrupt if user presses Ctrl+C to exit the program
+
+    """
+
     parse_arguments()
 
     # Defining the valid row and column sizes
@@ -139,6 +171,10 @@ def matrix() -> None:
 
 
 def parse_arguments() -> None:
+    """
+    Parses command-line arguments and sets the appropriate values in Globals.DELTA_T and Globals.CHAR_POOL.
+    """
+
     # Parsing command-line arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", help="Sets the speed to slow", action="store_true")
